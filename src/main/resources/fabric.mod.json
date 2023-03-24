@@ -36,6 +36,9 @@
     "jei_mod_plugin": [
       "slimeknights.tconstruct.plugin.jei.JEIPlugin"
     ],
+    "emi": [
+      "slimeknights.tconstruct.plugin.emi.EMIPlugin"
+    ],
     "cardinal-components": [
       "slimeknights.tconstruct.gadgets.capability.PiggybackCapability",
       "slimeknights.tconstruct.tools.logic.EquipmentChangeWatcher",
