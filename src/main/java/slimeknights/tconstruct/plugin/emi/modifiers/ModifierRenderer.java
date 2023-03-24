@@ -2,7 +2,9 @@ package slimeknights.tconstruct.plugin.emi.modifiers;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.emi.emi.api.render.EmiRenderable;
-import slimeknights.tconstruct.library.client.modifiers.ModifierIconManager;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.network.chat.Component;
 import slimeknights.tconstruct.library.modifiers.ModifierEntry;
 
 public class ModifierRenderer implements EmiRenderable {
@@ -10,8 +12,14 @@ public class ModifierRenderer implements EmiRenderable {
   public ModifierRenderer(ModifierEntry entry) {
     this.entry = entry;
   }
+
   @Override
   public void render(PoseStack matrices, int x, int y, float delta) {
-    ModifierIconManager.renderIcon(matrices, entry.getModifier(), x, y, 100, 16);
+    if (entry != null) {
+      Component name = entry.getModifier().getDisplayName(entry.getLevel());
+//      Font fontRenderer = getFontRenderer(Minecraft.getInstance(), entry);
+//      int x = (width - fontRenderer.width(name)) / 2;
+//      fontRenderer.drawShadow(matrices, name, x, 1, -1);
+    }
   }
 }

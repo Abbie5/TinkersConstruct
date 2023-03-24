@@ -12,11 +12,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ModifierEmiStack extends EmiStack {
-  private final ModifierRenderer renderer;
+  private final ModifierBookmarkRenderer renderer;
   private final ModifierEntry entry;
   public ModifierEmiStack(ModifierEntry entry) {
     this.entry = entry;
-    this.renderer = new ModifierRenderer(entry);
+    this.renderer = new ModifierBookmarkRenderer(entry);
   }
   @Override
   public EmiStack copy() {
