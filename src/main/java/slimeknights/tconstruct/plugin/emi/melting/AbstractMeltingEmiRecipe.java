@@ -1,6 +1,7 @@
 package slimeknights.tconstruct.plugin.emi.melting;
 
 import dev.emi.emi.api.recipe.EmiRecipe;
+import dev.emi.emi.api.render.EmiTexture;
 import dev.emi.emi.api.stack.EmiIngredient;
 import dev.emi.emi.api.stack.EmiStack;
 import dev.emi.emi.api.stack.FluidEmiStack;
@@ -53,5 +54,8 @@ public abstract class AbstractMeltingEmiRecipe implements EmiRecipe {
   @Override
   public void addWidgets(WidgetHolder widgets) {
     widgets.addTexture(BACKGROUND_LOC, 0, 0, 132, 40, 0, 0);
+
+    // draw the arrow
+    //widgets.addTexture(EmiTexture.EMPTY_ARROW, 56, 18);
   }
 }

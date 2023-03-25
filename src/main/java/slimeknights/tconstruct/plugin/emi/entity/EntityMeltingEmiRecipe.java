@@ -80,6 +80,7 @@ public class EntityMeltingEmiRecipe implements EmiRecipe {
       .map(f -> FluidEmiStack.of(f.getFluid(), f.getAmount()))
       .toList());
     widgets.addSlot(fuels, 75, 43)
+      .drawBack(false)
       .customBackground(null, 0, 0, 16, 16);
 
   }

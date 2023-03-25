@@ -73,9 +73,9 @@ public abstract class AbstractCastingEmiRecipe implements EmiRecipe {
 
     // items
     if (!getInputs().get(1).isEmpty()) {
-      widgets.addSlot(getInputs().get(1), 38, 19).drawBack(false).catalyst(!recipe.isConsumed());
+      widgets.addSlot(getInputs().get(1), 37, 18).drawBack(false).catalyst(!recipe.isConsumed());
     }
-    widgets.addSlot(getOutputs().get(0), 93, 18).drawBack(false).output(true).recipeContext(this);
+    widgets.addSlot(getOutputs().get(0), 88, 13).drawBack(false).output(true).recipeContext(this);
 
     // fluids
     // tank fluids

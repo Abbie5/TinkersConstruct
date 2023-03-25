@@ -1,6 +1,7 @@
 package slimeknights.tconstruct.plugin.emi.melting;
 
 import dev.emi.emi.api.recipe.EmiRecipeCategory;
+import dev.emi.emi.api.render.EmiTexture;
 import dev.emi.emi.api.stack.EmiIngredient;
 import dev.emi.emi.api.stack.EmiStack;
 import dev.emi.emi.api.stack.FluidEmiStack;
@@ -11,6 +12,7 @@ import slimeknights.tconstruct.plugin.jei.melting.MeltingFuelHandler;
 import slimeknights.tconstruct.smeltery.block.entity.module.FuelModule;
 
 public class MeltingEmiRecipe extends AbstractMeltingEmiRecipe {
+private EmiTexture solidFuel = new EmiTexture(BACKGROUND_LOC, 164, 0, 18, 20);
 
   public MeltingEmiRecipe(MeltingRecipe recipe) {
     super(recipe);
@@ -25,8 +27,14 @@ public class MeltingEmiRecipe extends AbstractMeltingEmiRecipe {
   public void addWidgets(WidgetHolder widgets) {
     super.addWidgets(widgets);
 
+    // solid fuel slot
+    int temperature = recipe.getTemperature();
+    if (temperature <= FuelModule.SOLID_TEMPERATURE) {
+      widgets.addTexture(solidFuel, 1, 19);
+    }
+
     // input
-    widgets.addSlot(getInputs().get(0), 24, 18).drawBack(false);
+    widgets.addSlot(getInputs().get(0), 23, 17).drawBack(false);
 
     // output
 //    IMeltingContainer.OreRateType oreType = recipe.getOreType();
@@ -51,7 +59,7 @@ public class MeltingEmiRecipe extends AbstractMeltingEmiRecipe {
       fuelHeight = 15;
       EmiIngredient solidFuels = EmiIngredient.of(MeltingFuelHandler.SOLID_FUELS.get()
           .stream().map(EmiStack::of).toList());
-      widgets.addSlot(solidFuels, 2, 22).drawBack(false);
+      widgets.addSlot(solidFuels, 1, 21).drawBack(false);
     }
 
     // liquid fuel

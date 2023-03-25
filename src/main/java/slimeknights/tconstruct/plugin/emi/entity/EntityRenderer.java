@@ -62,7 +62,7 @@ public class EntityRenderer implements EmiRenderable {
             PoseStack modelView = RenderSystem.getModelViewStack();
             modelView.pushPose();
             modelView.mulPoseMatrix(matrixStack.last().pose());
-            InventoryScreen.renderEntityInInventory(x + size / 2, y + size, scale, 0, 10, livingEntity);
+            InventoryScreen.renderEntityInInventory(x + size / 4, y + size * 3 / 4, scale, 0, 10, livingEntity);
             modelView.popPose();
             RenderSystem.applyModelViewMatrix();
             return;
