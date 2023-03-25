@@ -6,7 +6,6 @@ import dev.emi.emi.api.render.EmiTexture;
 import dev.emi.emi.api.stack.EmiIngredient;
 import dev.emi.emi.api.stack.EmiStack;
 import dev.emi.emi.api.widget.WidgetHolder;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -25,7 +24,6 @@ import java.util.Objects;
 
 public class PartBuilderEmiRecipe implements EmiRecipe {
   private static final ResourceLocation BACKGROUND_LOC = TConstruct.getResource("textures/gui/jei/tinker_station.png");
-  private static final String KEY_COST = TConstruct.makeTranslationKey("jei", "part_builder.cost");
   private final IDisplayPartBuilderRecipe recipe;
 
   public PartBuilderEmiRecipe(IDisplayPartBuilderRecipe recipe) {
@@ -86,7 +84,7 @@ public class PartBuilderEmiRecipe implements EmiRecipe {
     // texts
     Component name = MaterialTooltipCache.getColoredDisplayName(recipe.getMaterial().getVariant());
     widgets.addText(name, 3, 2, Objects.requireNonNullElse(name.getStyle().getColor(), ResourceColorManager.WHITE).getValue(), true);
-    String cooling = I18n.get(KEY_COST, recipe.getCost());
-    widgets.addText(new TextComponent(cooling), 3, 35, Color.GRAY.getRGB(), false);
+    Component cooling = new TranslatableComponent("jei.tconstruct.part_builder.cost", recipe.getCost());
+    widgets.addText(cooling, 3, 35, Color.GRAY.getRGB(), false);
   }
 }

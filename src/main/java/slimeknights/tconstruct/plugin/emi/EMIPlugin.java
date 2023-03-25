@@ -7,8 +7,6 @@ import dev.emi.emi.api.recipe.EmiRecipeCategory;
 import dev.emi.emi.api.stack.EmiIngredient;
 import dev.emi.emi.api.stack.EmiStack;
 import io.github.fabricators_of_create.porting_lib.mixin.common.accessor.RecipeManagerAccessor;
-import mezz.jei.api.registration.IRecipeCatalystRegistration;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.world.Container;
@@ -17,7 +15,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.level.ItemLike;
 import slimeknights.mantle.recipe.helper.RecipeHelper;
 import slimeknights.tconstruct.TConstruct;
 import slimeknights.tconstruct.common.TinkerTags;
@@ -133,16 +130,16 @@ public class EMIPlugin implements EmiPlugin {
     // smeltery
     registry.addWorkstation(MELTING_CATEGORY, EmiStack.of(TinkerSmeltery.searedMelter.get()));
 //    registry.addWorkstation(FUELING, EmiStack.of(TinkerSmeltery.searedHeater.get()));
-    addCastingCatalyst(registry, CASTING_TABLE_CATEGORY, EmiStack.of(TinkerSmeltery.searedTable.get()), TinkerRecipeTypes.MOLDING_TABLE.get());
-    addCastingCatalyst(registry, CASTING_BASIN_CATEGORY, EmiStack.of(TinkerSmeltery.searedBasin.get()), TinkerRecipeTypes.MOLDING_BASIN.get());
+    addCastingCatalyst(registry, manager, CASTING_TABLE_CATEGORY, EmiStack.of(TinkerSmeltery.searedTable.get()), TinkerRecipeTypes.MOLDING_TABLE.get());
+    addCastingCatalyst(registry, manager, CASTING_BASIN_CATEGORY, EmiStack.of(TinkerSmeltery.searedBasin.get()), TinkerRecipeTypes.MOLDING_BASIN.get());
     registry.addWorkstation(MELTING_CATEGORY, EmiStack.of(TinkerSmeltery.smelteryController.get()));
     registry.addWorkstation(ALLOY_CATEGORY, EmiStack.of(TinkerSmeltery.smelteryController.get()));
     registry.addWorkstation(ENTITY_MELTING_CATEGORY, EmiStack.of(TinkerSmeltery.smelteryController.get()));
 
     // foundry
     registry.addWorkstation(ALLOY_CATEGORY, EmiStack.of(TinkerSmeltery.scorchedAlloyer.get()));
-    addCastingCatalyst(registry, CASTING_TABLE_CATEGORY, EmiStack.of(TinkerSmeltery.scorchedTable.get()), TinkerRecipeTypes.MOLDING_TABLE.get());
-    addCastingCatalyst(registry, CASTING_BASIN_CATEGORY, EmiStack.of(TinkerSmeltery.scorchedBasin.get()), TinkerRecipeTypes.MOLDING_BASIN.get());
+    addCastingCatalyst(registry, manager, CASTING_TABLE_CATEGORY, EmiStack.of(TinkerSmeltery.scorchedTable.get()), TinkerRecipeTypes.MOLDING_TABLE.get());
+    addCastingCatalyst(registry, manager, CASTING_BASIN_CATEGORY, EmiStack.of(TinkerSmeltery.scorchedBasin.get()), TinkerRecipeTypes.MOLDING_BASIN.get());
     registry.addWorkstation(FOUNDRY_CATEGORY, EmiStack.of(TinkerSmeltery.foundryController.get()));
 
     // modifiers
@@ -208,12 +205,10 @@ public class EMIPlugin implements EmiPlugin {
       .forEach(recipe -> registry.addRecipe(new PartBuilderEmiRecipe(recipe)));
   }
 
-  private static <T extends Recipe<C>, C extends Container> void addCastingCatalyst(EmiRegistry registry, EmiRecipeCategory ownCategory, EmiIngredient workstation, RecipeType<MoldingRecipe> type) {
+  private static <T extends Recipe<C>, C extends Container> void addCastingCatalyst(EmiRegistry registry, RecipeManager manager, EmiRecipeCategory ownCategory, EmiIngredient workstation, RecipeType<MoldingRecipe> type) {
     registry.addWorkstation(ownCategory, workstation);
-    assert Minecraft.getInstance().level != null;
-    if (!((RecipeManagerAccessor)Minecraft.getInstance().level.getRecipeManager()).port_lib$byType(type).isEmpty()) {
+    if (!((RecipeManagerAccessor)manager).port_lib$byType(type).isEmpty()) {
       registry.addWorkstation(MOLDING_CATEGORY, workstation);
     }
   }
-
 }
