@@ -13,28 +13,27 @@ import slimeknights.tconstruct.library.modifiers.Modifier;
 import slimeknights.tconstruct.library.modifiers.ModifierEntry;
 import slimeknights.tconstruct.library.recipe.TinkerRecipeTypes;
 import slimeknights.tconstruct.library.recipe.casting.IDisplayableCastingRecipe;
+import slimeknights.tconstruct.library.recipe.entitymelting.EntityMeltingRecipe;
 import slimeknights.tconstruct.library.recipe.melting.MeltingRecipe;
 import slimeknights.tconstruct.library.recipe.modifiers.adding.IDisplayModifierRecipe;
 import slimeknights.tconstruct.library.recipe.modifiers.severing.SeveringRecipe;
 import slimeknights.tconstruct.library.tools.SlotType;
 import slimeknights.tconstruct.plugin.emi.casting.CastingBasinEmiRecipe;
 import slimeknights.tconstruct.plugin.emi.casting.CastingTableEmiRecipe;
+import slimeknights.tconstruct.plugin.emi.entity.EntityMeltingEmiRecipe;
 import slimeknights.tconstruct.plugin.emi.entity.SeveringEmiRecipe;
 import slimeknights.tconstruct.plugin.emi.melting.FoundryEmiRecipe;
 import slimeknights.tconstruct.plugin.emi.melting.MeltingEmiRecipe;
 import slimeknights.tconstruct.plugin.emi.modifiers.ModifierEmiRecipe;
 import slimeknights.tconstruct.plugin.emi.modifiers.ModifierEmiStack;
+import slimeknights.tconstruct.plugin.jei.entity.DefaultEntityMeltingRecipe;
 import slimeknights.tconstruct.smeltery.TinkerSmeltery;
 import slimeknights.tconstruct.tools.TinkerModifiers;
 import slimeknights.tconstruct.tools.TinkerTools;
 import slimeknights.tconstruct.tools.item.CreativeSlotItem;
 
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
-
-import static slimeknights.tconstruct.TConstruct.MOD_ID;
 
 public class EMIPlugin implements EmiPlugin {
   public static final EmiRecipeCategory SEVERING_CATEGORY =
@@ -58,6 +57,12 @@ public class EMIPlugin implements EmiPlugin {
   public static final EmiRecipeCategory FOUNDRY_CATEGORY =
     new EmiRecipeCategory(TConstruct.getResource("foundry"),
       EmiStack.of(TinkerSmeltery.foundryController.get()));
+  public static final EmiRecipeCategory ALLOY_CATEGORY =
+    new EmiRecipeCategory(TConstruct.getResource("alloying"),
+      EmiStack.of(TinkerSmeltery.smelteryController.get()));
+  public static final EmiRecipeCategory ENTITY_MELTING_CATEGORY =
+    new EmiRecipeCategory(TConstruct.getResource("entity_melting"),
+      EntityMeltingEmiRecipe.icon);
 
   @Override
   public void register(EmiRegistry registry) {
@@ -68,8 +73,8 @@ public class EMIPlugin implements EmiPlugin {
     registry.addCategory(MOLDING_CATEGORY);
     // melting and casting
     registry.addCategory(MELTING_CATEGORY);
-//    registry.addRecipeCategories(new AlloyRecipeCategory(guiHelper));
-//    registry.addRecipeCategories(new EntityMeltingRecipeCategory(guiHelper));
+    registry.addCategory(ALLOY_CATEGORY);
+    registry.addCategory(ENTITY_MELTING_CATEGORY);
     registry.addCategory(FOUNDRY_CATEGORY);
     // tinker station
     registry.addCategory(MODIFIER_CATEGORY);
@@ -90,6 +95,12 @@ public class EMIPlugin implements EmiPlugin {
     List<MeltingRecipe> meltingRecipes = RecipeHelper.getJEIRecipes(manager, TinkerRecipeTypes.MELTING.get(), MeltingRecipe.class);
     meltingRecipes.forEach(recipe -> registry.addRecipe(new MeltingEmiRecipe(recipe)));
     meltingRecipes.forEach(recipe -> registry.addRecipe(new FoundryEmiRecipe(recipe)));
+
+    // entity melting
+    List<EntityMeltingRecipe> entityMeltingRecipes = RecipeHelper.getJEIRecipes(manager, TinkerRecipeTypes.ENTITY_MELTING.get(), EntityMeltingRecipe.class);
+    // generate a "default" recipe for all other entity types
+    entityMeltingRecipes.add(new DefaultEntityMeltingRecipe(entityMeltingRecipes));
+    entityMeltingRecipes.forEach(recipe -> registry.addRecipe(new EntityMeltingEmiRecipe(recipe)));
 
     // modifiers
     RecipeHelper.getJEIRecipes(manager, TinkerRecipeTypes.TINKER_STATION.get(), IDisplayModifierRecipe.class)
