@@ -125,6 +125,14 @@ public class ModifierEmiRecipe implements EmiRecipe {
 
     // max count
     Font fontRenderer = Minecraft.getInstance().font;
+    int max = recipe.getMaxLevel();
+    if (max > 0) {
+      widgets.addText(new TranslatableComponent("jei.tconstruct.modifiers.max").append(String.valueOf(max)),
+        66, 16, Color.GRAY.getRGB(), false);
+    }
+
+
+    // slot cost
     SlotType.SlotCount slots = recipe.getSlots();
     if (slots == null) {
       drawSlotType(widgets, null, 110, 58);

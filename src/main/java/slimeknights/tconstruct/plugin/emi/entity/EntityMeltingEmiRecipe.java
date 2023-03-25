@@ -7,6 +7,9 @@ import dev.emi.emi.api.stack.EmiIngredient;
 import dev.emi.emi.api.stack.EmiStack;
 import dev.emi.emi.api.stack.FluidEmiStack;
 import dev.emi.emi.api.widget.WidgetHolder;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 import slimeknights.tconstruct.TConstruct;
@@ -14,6 +17,7 @@ import slimeknights.tconstruct.library.recipe.entitymelting.EntityMeltingRecipe;
 import slimeknights.tconstruct.plugin.emi.EMIPlugin;
 import slimeknights.tconstruct.plugin.jei.melting.MeltingFuelHandler;
 
+import java.awt.Color;
 import java.util.List;
 
 public class EntityMeltingEmiRecipe implements EmiRecipe {
@@ -60,6 +64,14 @@ public class EntityMeltingEmiRecipe implements EmiRecipe {
   public void addWidgets(WidgetHolder widgets) {
     widgets.addTexture(BACKGROUND_LOC, 0, 0, 150, 62, 0, 41);
 
+    widgets.addFillingArrow(71, 21, 10000);
+
+    // draw damage string next to the heart icon
+    String damage = Float.toString(recipe.getDamage() / 2f);
+    Font fontRenderer = Minecraft.getInstance().font;
+    int x = 84 - fontRenderer.width(damage);
+    widgets.addText(new TextComponent(damage), x, 8, Color.RED.getRGB(), false);
+
     // inputs, filtered by spawn egg item
     widgets.addSlot(getInputs().get(0), 19, 11)
       .drawBack(false)
@@ -79,9 +91,8 @@ public class EntityMeltingEmiRecipe implements EmiRecipe {
       .stream()
       .map(f -> FluidEmiStack.of(f.getFluid(), f.getAmount()))
       .toList());
-    widgets.addSlot(fuels, 75, 43)
-      .drawBack(false)
-      .customBackground(null, 0, 0, 16, 16);
+    widgets.addSlot(fuels, 74, 42)
+      .drawBack(false);
 
   }
 }

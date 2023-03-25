@@ -1,12 +1,16 @@
 package slimeknights.tconstruct.plugin.emi.casting;
 
 import dev.emi.emi.api.recipe.EmiRecipe;
-import dev.emi.emi.api.render.EmiRenderable;
 import dev.emi.emi.api.render.EmiTexture;
 import dev.emi.emi.api.stack.EmiIngredient;
 import dev.emi.emi.api.stack.EmiStack;
 import dev.emi.emi.api.stack.FluidEmiStack;
 import dev.emi.emi.api.widget.WidgetHolder;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 import slimeknights.tconstruct.TConstruct;
@@ -14,11 +18,15 @@ import slimeknights.tconstruct.library.recipe.FluidValues;
 import slimeknights.tconstruct.library.recipe.casting.IDisplayableCastingRecipe;
 import slimeknights.tconstruct.library.recipe.casting.container.ContainerFillingRecipe;
 
-import java.util.ArrayList;
+import java.awt.Color;
 import java.util.List;
 
 public abstract class AbstractCastingEmiRecipe implements EmiRecipe {
   protected static final ResourceLocation BACKGROUND_LOC = TConstruct.getResource("textures/gui/jei/casting.png");
+  private static final EmiTexture castConsumed = new EmiTexture(BACKGROUND_LOC, 141, 32, 13, 11);
+  private static final EmiTexture castKept = new EmiTexture(BACKGROUND_LOC, 141, 43, 13, 11);
+  private static final EmiTexture arrow = new EmiTexture(BACKGROUND_LOC, 117, 32, 24, 17);
+
   protected IDisplayableCastingRecipe recipe;
   private final EmiTexture block;
 
@@ -29,19 +37,31 @@ public abstract class AbstractCastingEmiRecipe implements EmiRecipe {
 
   @Override
   public List<EmiIngredient> getInputs() {
-    List<EmiIngredient> inputs = new ArrayList<>();
-    // fluid input
-    inputs.add(EmiIngredient.of(recipe.getFluids().stream().map(f -> FluidEmiStack.of(f.getFluid(), f.getAmount())).toList()));
-    // cast items
-    EmiIngredient castItems = EmiStack.EMPTY;
-    inputs.add(EmiIngredient.of(recipe.getCastItems().stream().map(EmiStack::of).toList()));
+    return List.of(
+      // fluid input
+      EmiIngredient.of(recipe.getFluids().stream().map(f -> FluidEmiStack.of(f.getFluid(), f.getAmount())).toList()),
+      // cast items
+      recipe.isConsumed()
+        ? EmiIngredient.of(recipe.getCastItems().stream().map(EmiStack::of).toList())
+        : EmiStack.EMPTY);
+  }
 
-    return inputs;
+  @Override
+  public List<EmiIngredient> getCatalysts() {
+    return List.of(!recipe.isConsumed()
+      ? EmiIngredient.of(recipe.getCastItems().stream().map(EmiStack::of).toList())
+      : EmiStack.EMPTY);
   }
 
   @Override
   public List<EmiStack> getOutputs() {
     return List.of(EmiStack.of(recipe.getOutput()));
+  }
+
+  private EmiIngredient getCastItem() {
+    return recipe.isConsumed()
+      ? getInputs().get(1)
+      : getCatalysts().get(0);
   }
 
   @Override
@@ -71,9 +91,26 @@ public abstract class AbstractCastingEmiRecipe implements EmiRecipe {
     // casting table/basin block
     widgets.addTexture(block, 38, 35);
 
+    // arrows etc
+    widgets.addAnimatedTexture(arrow, 58, 18, recipe.getCoolingTime() * 50, true, false, false);
+    if (recipe.hasCast()) {
+      widgets.addTexture(recipe.isConsumed() ? castConsumed : castKept, 63, 39)
+        .tooltip((x, y) ->
+          List.of(ClientTooltipComponent.create(new TranslatableComponent(
+            recipe.isConsumed()
+              ? "jei.tconstruct.casting.cast_consumed"
+              : "jei.tconstruct.casting.cast_kept")
+            .getVisualOrderText())));
+    }
+    int coolingTime = recipe.getCoolingTime() / 20;
+    Component cooling = new TranslatableComponent("jei.tconstruct.time", coolingTime);
+    Font fontRenderer = Minecraft.getInstance().font;
+    int x = 72 - fontRenderer.width(cooling) / 2;
+    widgets.addText(cooling, x, 2, Color.GRAY.getRGB(), false);
+
     // items
-    if (!getInputs().get(1).isEmpty()) {
-      widgets.addSlot(getInputs().get(1), 37, 18).drawBack(false).catalyst(!recipe.isConsumed());
+    if (!getCastItem().isEmpty()) {
+      widgets.addSlot(getCastItem(), 37, 18).drawBack(false).catalyst(!recipe.isConsumed());
     }
     widgets.addSlot(getOutputs().get(0), 88, 13).drawBack(false).output(true).recipeContext(this);
 
