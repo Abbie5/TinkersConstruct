@@ -4,11 +4,23 @@ import com.google.common.collect.ImmutableList;
 import dev.emi.emi.api.EmiPlugin;
 import dev.emi.emi.api.EmiRegistry;
 import dev.emi.emi.api.recipe.EmiRecipeCategory;
+import dev.emi.emi.api.stack.EmiIngredient;
 import dev.emi.emi.api.stack.EmiStack;
+import io.github.fabricators_of_create.porting_lib.mixin.common.accessor.RecipeManagerAccessor;
+import mezz.jei.api.registration.IRecipeCatalystRegistration;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.ItemLike;
 import slimeknights.mantle.recipe.helper.RecipeHelper;
 import slimeknights.tconstruct.TConstruct;
+import slimeknights.tconstruct.common.TinkerTags;
 import slimeknights.tconstruct.common.config.Config;
 import slimeknights.tconstruct.library.modifiers.Modifier;
 import slimeknights.tconstruct.library.modifiers.ModifierEntry;
@@ -24,6 +36,8 @@ import slimeknights.tconstruct.library.recipe.modifiers.severing.SeveringRecipe;
 import slimeknights.tconstruct.library.recipe.molding.MoldingRecipe;
 import slimeknights.tconstruct.library.recipe.partbuilder.IDisplayPartBuilderRecipe;
 import slimeknights.tconstruct.library.tools.SlotType;
+import slimeknights.tconstruct.library.tools.item.IModifiable;
+import slimeknights.tconstruct.library.tools.item.IModifiableDisplay;
 import slimeknights.tconstruct.plugin.emi.casting.CastingBasinEmiRecipe;
 import slimeknights.tconstruct.plugin.emi.casting.CastingTableEmiRecipe;
 import slimeknights.tconstruct.plugin.emi.entity.EntityMeltingEmiRecipe;
@@ -44,6 +58,7 @@ import slimeknights.tconstruct.tools.item.CreativeSlotItem;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 public class EMIPlugin implements EmiPlugin {
   public static final EmiRecipeCategory SEVERING_CATEGORY =
@@ -79,6 +94,8 @@ public class EMIPlugin implements EmiPlugin {
 
   @Override
   public void register(EmiRegistry registry) {
+    RecipeManager manager = registry.getRecipeManager();
+
     // categories
     // casting
     registry.addCategory(CASTING_BASIN_CATEGORY);
@@ -95,9 +112,51 @@ public class EMIPlugin implements EmiPlugin {
     // part builder
     registry.addCategory(PART_BUILDER_CATEGORY);
 
-    // recipes
-    RecipeManager manager = registry.getRecipeManager();
+    // ingredients
+    if (Config.CLIENT.showModifiersInJEI.get()) {
+      RecipeHelper.getJEIRecipes(manager, TinkerRecipeTypes.TINKER_STATION.get(), IDisplayModifierRecipe.class)
+        .stream()
+        .map(recipe -> recipe.getDisplayResult().getModifier())
+        .distinct()
+        .sorted(Comparator.comparing(Modifier::getId))
+        .map(mod -> new ModifierEntry(mod, 1))
+        .forEach(mod -> registry.addEmiStack(new ModifierEmiStack(mod)));
+    }
 
+    // workstations
+    // tables
+    registry.addWorkstation(PART_BUILDER_CATEGORY, EmiStack.of(TinkerTables.partBuilder.get()));
+    registry.addWorkstation(MODIFIER_CATEGORY, EmiStack.of(TinkerTables.tinkerStation.get()));
+    registry.addWorkstation(MODIFIER_CATEGORY, EmiStack.of(TinkerTables.tinkersAnvil.get()));
+    registry.addWorkstation(MODIFIER_CATEGORY, EmiStack.of(TinkerTables.scorchedAnvil.get()));
+
+    // smeltery
+    registry.addWorkstation(MELTING_CATEGORY, EmiStack.of(TinkerSmeltery.searedMelter.get()));
+//    registry.addWorkstation(FUELING, EmiStack.of(TinkerSmeltery.searedHeater.get()));
+    addCastingCatalyst(registry, CASTING_TABLE_CATEGORY, EmiStack.of(TinkerSmeltery.searedTable.get()), TinkerRecipeTypes.MOLDING_TABLE.get());
+    addCastingCatalyst(registry, CASTING_BASIN_CATEGORY, EmiStack.of(TinkerSmeltery.searedBasin.get()), TinkerRecipeTypes.MOLDING_BASIN.get());
+    registry.addWorkstation(MELTING_CATEGORY, EmiStack.of(TinkerSmeltery.smelteryController.get()));
+    registry.addWorkstation(ALLOY_CATEGORY, EmiStack.of(TinkerSmeltery.smelteryController.get()));
+    registry.addWorkstation(ENTITY_MELTING_CATEGORY, EmiStack.of(TinkerSmeltery.smelteryController.get()));
+
+    // foundry
+    registry.addWorkstation(ALLOY_CATEGORY, EmiStack.of(TinkerSmeltery.scorchedAlloyer.get()));
+    addCastingCatalyst(registry, CASTING_TABLE_CATEGORY, EmiStack.of(TinkerSmeltery.scorchedTable.get()), TinkerRecipeTypes.MOLDING_TABLE.get());
+    addCastingCatalyst(registry, CASTING_BASIN_CATEGORY, EmiStack.of(TinkerSmeltery.scorchedBasin.get()), TinkerRecipeTypes.MOLDING_BASIN.get());
+    registry.addWorkstation(FOUNDRY_CATEGORY, EmiStack.of(TinkerSmeltery.foundryController.get()));
+
+    // modifiers
+    for (Holder<Item> item : Objects.requireNonNull(Registry.ITEM.getTagOrEmpty(TinkerTags.Items.MELEE))) {
+      // add any tools with a severing trait
+      if (item instanceof IModifiable modifiable && modifiable.getToolDefinition().getData().getTraits().stream().anyMatch(entry -> entry.matches(TinkerModifiers.severing.getId()))) {
+        registry.addWorkstation(SEVERING_CATEGORY, EmiStack.of(IModifiableDisplay.getDisplayStack(item.value())));
+      }
+    }
+    registry.addWorkstation(SEVERING_CATEGORY, new ModifierEmiStack(new ModifierEntry(TinkerModifiers.severing, 1)));
+    registry.addWorkstation(MELTING_CATEGORY, new ModifierEmiStack(new ModifierEntry(TinkerModifiers.melting, 1)));
+    registry.addWorkstation(ENTITY_MELTING_CATEGORY, new ModifierEmiStack(new ModifierEntry(TinkerModifiers.melting, 1)));
+
+    // recipes
     // casting
     RecipeHelper.getJEIRecipes(manager, TinkerRecipeTypes.CASTING_BASIN.get(), IDisplayableCastingRecipe.class)
         .forEach(recipe -> registry.addRecipe(new CastingBasinEmiRecipe(recipe)));
@@ -147,16 +206,14 @@ public class EMIPlugin implements EmiPlugin {
     MaterialItemList.setRecipes(materialRecipes);
     RecipeHelper.getJEIRecipes(manager, TinkerRecipeTypes.PART_BUILDER.get(), IDisplayPartBuilderRecipe.class)
       .forEach(recipe -> registry.addRecipe(new PartBuilderEmiRecipe(recipe)));
+  }
 
-    // ingredients
-    if (Config.CLIENT.showModifiersInJEI.get()) {
-      RecipeHelper.getJEIRecipes(manager, TinkerRecipeTypes.TINKER_STATION.get(), IDisplayModifierRecipe.class)
-        .stream()
-        .map(recipe -> recipe.getDisplayResult().getModifier())
-        .distinct()
-        .sorted(Comparator.comparing(Modifier::getId))
-        .map(mod -> new ModifierEntry(mod, 1))
-        .forEach(mod -> registry.addEmiStack(new ModifierEmiStack(mod)));
+  private static <T extends Recipe<C>, C extends Container> void addCastingCatalyst(EmiRegistry registry, EmiRecipeCategory ownCategory, EmiIngredient workstation, RecipeType<MoldingRecipe> type) {
+    registry.addWorkstation(ownCategory, workstation);
+    assert Minecraft.getInstance().level != null;
+    if (!((RecipeManagerAccessor)Minecraft.getInstance().level.getRecipeManager()).port_lib$byType(type).isEmpty()) {
+      registry.addWorkstation(MOLDING_CATEGORY, workstation);
     }
   }
+
 }
