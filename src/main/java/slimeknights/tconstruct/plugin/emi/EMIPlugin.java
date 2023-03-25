@@ -6,6 +6,7 @@ import dev.emi.emi.api.EmiRegistry;
 import dev.emi.emi.api.recipe.EmiRecipeCategory;
 import dev.emi.emi.api.stack.EmiIngredient;
 import dev.emi.emi.api.stack.EmiStack;
+import dev.emi.emi.api.widget.Bounds;
 import io.github.fabricators_of_create.porting_lib.mixin.common.accessor.RecipeManagerAccessor;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
@@ -15,6 +16,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
+import slimeknights.mantle.client.screen.MultiModuleScreen;
 import slimeknights.mantle.recipe.helper.RecipeHelper;
 import slimeknights.tconstruct.TConstruct;
 import slimeknights.tconstruct.common.TinkerTags;
@@ -203,6 +205,15 @@ public class EMIPlugin implements EmiPlugin {
     MaterialItemList.setRecipes(materialRecipes);
     RecipeHelper.getJEIRecipes(manager, TinkerRecipeTypes.PART_BUILDER.get(), IDisplayPartBuilderRecipe.class)
       .forEach(recipe -> registry.addRecipe(new PartBuilderEmiRecipe(recipe)));
+
+    // exclusion areas
+    registry.addGenericExclusionArea((screen, consumer) -> {
+      if (screen instanceof MultiModuleScreen<?> multiModuleScreen)
+        multiModuleScreen.getModuleAreas()
+          .stream()
+          .map(r -> new Bounds(r.getX(), r.getY(), r.getWidth(), r.getHeight()))
+          .forEach(consumer);
+    });
   }
 
   private static <T extends Recipe<C>, C extends Container> void addCastingCatalyst(EmiRegistry registry, RecipeManager manager, EmiRecipeCategory ownCategory, EmiIngredient workstation, RecipeType<MoldingRecipe> type) {
