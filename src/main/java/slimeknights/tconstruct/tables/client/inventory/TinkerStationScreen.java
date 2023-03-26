@@ -694,7 +694,7 @@ public class TinkerStationScreen extends BaseTabbedScreen<TinkerStationBlockEnti
   @Override
   public List<Rect2i> getModuleAreas() {
     List<Rect2i> list = super.getModuleAreas();
-    list.add(this.buttonsScreen.getArea());
+    if (this.buttonsScreen != null) list.add(this.buttonsScreen.getArea());
     return list;
   }
 

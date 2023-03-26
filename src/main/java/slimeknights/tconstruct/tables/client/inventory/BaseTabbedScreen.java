@@ -92,7 +92,7 @@ public class BaseTabbedScreen<TILE extends BlockEntity, CONTAINER extends Tabbed
   @Override
   public List<Rect2i> getModuleAreas() {
     List<Rect2i> areas = super.getModuleAreas();
-    if (COMPAT_SHOW_TABS) areas.add(tabsScreen.getArea());
+    if (COMPAT_SHOW_TABS && tabsScreen != null) areas.add(tabsScreen.getArea());
     return areas;
   }
 
