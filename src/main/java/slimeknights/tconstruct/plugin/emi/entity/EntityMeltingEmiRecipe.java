@@ -6,6 +6,7 @@ import dev.emi.emi.api.render.EmiTexture;
 import dev.emi.emi.api.stack.EmiIngredient;
 import dev.emi.emi.api.stack.EmiStack;
 import dev.emi.emi.api.stack.FluidEmiStack;
+import dev.emi.emi.api.widget.TextWidget;
 import dev.emi.emi.api.widget.WidgetHolder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -68,9 +69,7 @@ public class EntityMeltingEmiRecipe implements EmiRecipe {
 
     // draw damage string next to the heart icon
     String damage = Float.toString(recipe.getDamage() / 2f);
-    Font fontRenderer = Minecraft.getInstance().font;
-    int x = 84 - fontRenderer.width(damage);
-    widgets.addText(new TextComponent(damage), x, 8, Color.RED.getRGB(), false);
+    widgets.addText(new TextComponent(damage), 78, 8, Color.RED.getRGB(), false).horizontalAlign(TextWidget.Alignment.CENTER);
 
     // inputs, filtered by spawn egg item
     widgets.addSlot(getInputs().get(0), 19, 11)

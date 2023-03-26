@@ -5,9 +5,8 @@ import dev.emi.emi.api.render.EmiTexture;
 import dev.emi.emi.api.stack.EmiIngredient;
 import dev.emi.emi.api.stack.EmiStack;
 import dev.emi.emi.api.stack.FluidEmiStack;
+import dev.emi.emi.api.widget.TextWidget;
 import dev.emi.emi.api.widget.WidgetHolder;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -71,9 +70,7 @@ public abstract class AbstractMeltingEmiRecipe implements EmiRecipe {
     // temperature
     int temperature = recipe.getTemperature();
 
-    Font fontRenderer = Minecraft.getInstance().font;
     Component temp = new TranslatableComponent("jei.tconstruct.temperature", temperature);
-    int x = 56 - fontRenderer.width(temp) / 2;
-    widgets.addText(temp, x, 3, Color.GRAY.getRGB(), false);
+    widgets.addText(temp, 56, 3, Color.GRAY.getRGB(), false).horizontalAlign(TextWidget.Alignment.CENTER);
   }
 }

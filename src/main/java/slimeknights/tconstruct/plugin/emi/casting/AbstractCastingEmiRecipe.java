@@ -5,9 +5,8 @@ import dev.emi.emi.api.render.EmiTexture;
 import dev.emi.emi.api.stack.EmiIngredient;
 import dev.emi.emi.api.stack.EmiStack;
 import dev.emi.emi.api.stack.FluidEmiStack;
+import dev.emi.emi.api.widget.TextWidget;
 import dev.emi.emi.api.widget.WidgetHolder;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -104,9 +103,7 @@ public abstract class AbstractCastingEmiRecipe implements EmiRecipe {
     }
     int coolingTime = recipe.getCoolingTime() / 20;
     Component cooling = new TranslatableComponent("jei.tconstruct.time", coolingTime);
-    Font fontRenderer = Minecraft.getInstance().font;
-    int x = 72 - fontRenderer.width(cooling) / 2;
-    widgets.addText(cooling, x, 2, Color.GRAY.getRGB(), false);
+    widgets.addText(cooling, 72, 2, Color.GRAY.getRGB(), false).horizontalAlign(TextWidget.Alignment.CENTER);
 
     // items
     if (!getCastItem().isEmpty()) {

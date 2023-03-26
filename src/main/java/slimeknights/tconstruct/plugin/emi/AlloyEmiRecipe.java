@@ -6,9 +6,8 @@ import dev.emi.emi.api.render.EmiTexture;
 import dev.emi.emi.api.stack.EmiIngredient;
 import dev.emi.emi.api.stack.EmiStack;
 import dev.emi.emi.api.stack.FluidEmiStack;
+import dev.emi.emi.api.widget.TextWidget;
 import dev.emi.emi.api.widget.WidgetHolder;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -101,10 +100,8 @@ public class AlloyEmiRecipe implements EmiRecipe {
 
     widgets.addFillingArrow(90, 21, 10000);
     // temperature info
-    Font fontRenderer = Minecraft.getInstance().font;
     Component temp = new TranslatableComponent("jei.tconstruct.temperature", recipe.getTemperature());
-    int x = 102 - (fontRenderer.width(temp) / 2);
-    widgets.addText(temp, x, 5, Color.GRAY.getRGB(), false);
+    widgets.addText(temp, 102, 5, Color.GRAY.getRGB(), false).horizontalAlign(TextWidget.Alignment.CENTER);
 
     // inputs
     long maxAmount = drawVariableFluids(widgets, 19, 11, 48, 32, getInputs(), getOutputs().get(0).getAmount());

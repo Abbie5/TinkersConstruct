@@ -1,14 +1,13 @@
 package slimeknights.tconstruct.plugin.emi.modifiers;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import dev.emi.emi.api.recipe.EmiRecipe;
 import dev.emi.emi.api.recipe.EmiRecipeCategory;
 import dev.emi.emi.api.stack.EmiIngredient;
 import dev.emi.emi.api.stack.EmiStack;
+import dev.emi.emi.api.widget.TextWidget;
 import dev.emi.emi.api.widget.WidgetHolder;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.renderer.GameRenderer;
@@ -22,8 +21,6 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.Nullable;
 import slimeknights.mantle.client.model.NBTKeyModel;
 import slimeknights.tconstruct.TConstruct;
@@ -32,7 +29,6 @@ import slimeknights.tconstruct.library.recipe.modifiers.adding.IDisplayModifierR
 import slimeknights.tconstruct.library.tools.SlotType;
 import slimeknights.tconstruct.plugin.emi.EMIPlugin;
 import slimeknights.tconstruct.tools.TinkerModifiers;
-import slimeknights.tconstruct.tools.item.CreativeSlotItem;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -124,7 +120,6 @@ public class ModifierEmiRecipe implements EmiRecipe {
     }
 
     // max count
-    Font fontRenderer = Minecraft.getInstance().font;
     int max = recipe.getMaxLevel();
     if (max > 0) {
       widgets.addText(new TranslatableComponent("jei.tconstruct.modifiers.max").append(String.valueOf(max)),
@@ -139,8 +134,7 @@ public class ModifierEmiRecipe implements EmiRecipe {
     } else {
       drawSlotType(widgets, slots.getType(), 110, 58);
       Component text = new TextComponent(Integer.toString(slots.getCount()));
-      int x = 111 - fontRenderer.width(text);
-      widgets.addText(text, x, 63, Color.GRAY.getRGB(), false);
+      widgets.addText(text, 111, 63, Color.GRAY.getRGB(), false).horizontalAlign(TextWidget.Alignment.CENTER);
     }
 
     // inputs
@@ -153,8 +147,7 @@ public class ModifierEmiRecipe implements EmiRecipe {
     //widgets.addSlot(output, 3, 3).recipeContext(this);
     {
       Component name = recipe.getModifier().getDisplayName(recipe.getDisplayResult().getLevel());
-      int x = (124 - fontRenderer.width(name)) / 2;
-      widgets.addText(name, 3+x, 4, -1, true);
+      widgets.addText(name, 67, 4, -1, true).horizontalAlign(TextWidget.Alignment.CENTER);
     }
     // tool
     widgets.addSlot(tools.get(0),  24, 37).drawBack(false);
