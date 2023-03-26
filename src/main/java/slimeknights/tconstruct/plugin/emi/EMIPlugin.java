@@ -4,18 +4,22 @@ import com.google.common.collect.ImmutableList;
 import dev.emi.emi.api.EmiPlugin;
 import dev.emi.emi.api.EmiRegistry;
 import dev.emi.emi.api.recipe.EmiRecipeCategory;
+import dev.emi.emi.api.recipe.EmiWorldInteractionRecipe;
 import dev.emi.emi.api.stack.EmiIngredient;
 import dev.emi.emi.api.stack.EmiStack;
 import dev.emi.emi.api.widget.Bounds;
 import io.github.fabricators_of_create.porting_lib.mixin.common.accessor.RecipeManagerAccessor;
+import net.fabricmc.fabric.api.tag.convention.v1.ConventionalItemTags;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.block.WeatheringCopper;
 import slimeknights.mantle.client.screen.MultiModuleScreen;
 import slimeknights.mantle.recipe.helper.RecipeHelper;
 import slimeknights.tconstruct.TConstruct;
@@ -50,6 +54,7 @@ import slimeknights.tconstruct.plugin.emi.transfer.*;
 import slimeknights.tconstruct.plugin.jei.entity.DefaultEntityMeltingRecipe;
 import slimeknights.tconstruct.plugin.jei.melting.MeltingFuelHandler;
 import slimeknights.tconstruct.plugin.jei.partbuilder.MaterialItemList;
+import slimeknights.tconstruct.shared.TinkerCommons;
 import slimeknights.tconstruct.smeltery.TinkerSmeltery;
 import slimeknights.tconstruct.tables.TinkerTables;
 import slimeknights.tconstruct.tools.TinkerModifiers;
@@ -206,6 +211,25 @@ public class EMIPlugin implements EmiPlugin {
     MaterialItemList.setRecipes(materialRecipes);
     RecipeHelper.getJEIRecipes(manager, TinkerRecipeTypes.PART_BUILDER.get(), IDisplayPartBuilderRecipe.class)
       .forEach(recipe -> registry.addRecipe(new PartBuilderEmiRecipe(recipe)));
+
+    // add world interaction recipes for waxing and stripping copper platforms
+    for (WeatheringCopper.WeatherState state : WeatheringCopper.WeatherState.values()) {
+      String stateId = state == WeatheringCopper.WeatherState.UNAFFECTED ? ""
+        : state.toString().toLowerCase()+"_";
+
+      registry.addRecipe(EmiWorldInteractionRecipe.builder()
+        .id(TConstruct.getResource("waxing/"+stateId+"copper_platform"))
+        .leftInput(EmiStack.of(TinkerCommons.copperPlatform.get(state)))
+        .rightInput(EmiStack.of(Items.HONEYCOMB), false)
+        .output(EmiStack.of(TinkerCommons.waxedCopperPlatform.get(state)))
+        .build());
+      registry.addRecipe(EmiWorldInteractionRecipe.builder()
+          .id(TConstruct.getResource("stripping/"+stateId+"copper_platform"))
+        .leftInput(EmiStack.of(TinkerCommons.waxedCopperPlatform.get(state)))
+        .rightInput(EmiIngredient.of(ConventionalItemTags.AXES), true)
+        .output(EmiStack.of(TinkerCommons.copperPlatform.get(state)))
+        .build());
+    }
 
     // exclusion areas
     registry.addGenericExclusionArea((screen, consumer) -> {
