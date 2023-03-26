@@ -55,6 +55,10 @@ public class PatternEmiStack extends EmiStack {
     return pattern.hashCode();
   }
 
+  public Pattern getPattern() {
+    return pattern;
+  }
+
   @Override
   public ResourceLocation getId() {
     return new ResourceLocation(pattern.getNamespace(), pattern.getPath());

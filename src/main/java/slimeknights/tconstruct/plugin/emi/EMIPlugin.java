@@ -46,6 +46,7 @@ import slimeknights.tconstruct.plugin.emi.melting.MeltingEmiRecipe;
 import slimeknights.tconstruct.plugin.emi.modifiers.ModifierEmiRecipe;
 import slimeknights.tconstruct.plugin.emi.modifiers.ModifierEmiStack;
 import slimeknights.tconstruct.plugin.emi.partbuilder.PartBuilderEmiRecipe;
+import slimeknights.tconstruct.plugin.emi.transfer.*;
 import slimeknights.tconstruct.plugin.jei.entity.DefaultEntityMeltingRecipe;
 import slimeknights.tconstruct.plugin.jei.melting.MeltingFuelHandler;
 import slimeknights.tconstruct.plugin.jei.partbuilder.MaterialItemList;
@@ -214,6 +215,13 @@ public class EMIPlugin implements EmiPlugin {
           .map(r -> new Bounds(r.getX(), r.getY(), r.getWidth(), r.getHeight()))
           .forEach(consumer);
     });
+
+    // recipe handlers
+    registry.addRecipeHandler(TinkerTables.craftingStationContainer.get(), new CraftingStationRecipeHandler());
+    registry.addRecipeHandler(TinkerTables.tinkerStationContainer.get(), new TinkerStationRecipeHandler());
+    registry.addRecipeHandler(TinkerTables.partBuilderContainer.get(), new PartBuilderRecipeHandler());
+    registry.addRecipeHandler(TinkerSmeltery.smelteryContainer.get(), new SmelteryRecipeHandler());
+    registry.addRecipeHandler(TinkerSmeltery.melterContainer.get(), new MelterRecipeHandler());
   }
 
   private static <T extends Recipe<C>, C extends Container> void addCastingCatalyst(EmiRegistry registry, RecipeManager manager, EmiRecipeCategory ownCategory, EmiIngredient workstation, RecipeType<MoldingRecipe> type) {
