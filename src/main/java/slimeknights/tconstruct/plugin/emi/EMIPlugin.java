@@ -5,6 +5,7 @@ import dev.emi.emi.api.EmiPlugin;
 import dev.emi.emi.api.EmiRegistry;
 import dev.emi.emi.api.recipe.EmiRecipeCategory;
 import dev.emi.emi.api.recipe.EmiWorldInteractionRecipe;
+import dev.emi.emi.api.stack.Comparison;
 import dev.emi.emi.api.stack.EmiIngredient;
 import dev.emi.emi.api.stack.EmiStack;
 import dev.emi.emi.api.widget.Bounds;
@@ -58,12 +59,14 @@ import slimeknights.tconstruct.shared.TinkerCommons;
 import slimeknights.tconstruct.smeltery.TinkerSmeltery;
 import slimeknights.tconstruct.tables.TinkerTables;
 import slimeknights.tconstruct.tools.TinkerModifiers;
+import slimeknights.tconstruct.tools.TinkerToolParts;
 import slimeknights.tconstruct.tools.TinkerTools;
 import slimeknights.tconstruct.tools.item.CreativeSlotItem;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 
 public class EMIPlugin implements EmiPlugin {
   public static final EmiRecipeCategory SEVERING_CATEGORY =
@@ -246,6 +249,39 @@ public class EMIPlugin implements EmiPlugin {
     registry.addRecipeHandler(TinkerTables.partBuilderContainer.get(), new PartBuilderRecipeHandler());
     registry.addRecipeHandler(TinkerSmeltery.smelteryContainer.get(), new SmelteryRecipeHandler());
     registry.addRecipeHandler(TinkerSmeltery.melterContainer.get(), new MelterRecipeHandler());
+
+    // comparisons
+    Function<Comparison, Comparison> compareNbt = c -> c.copy().nbt(true).build();
+
+    // tool parts
+    registry.setDefaultComparison(TinkerToolParts.repairKit.get(), compareNbt);
+    registry.setDefaultComparison(TinkerToolParts.pickHead.get(), compareNbt);
+    registry.setDefaultComparison(TinkerToolParts.hammerHead.get(), compareNbt);
+    registry.setDefaultComparison(TinkerToolParts.smallAxeHead.get(), compareNbt);
+    registry.setDefaultComparison(TinkerToolParts.broadAxeHead.get(), compareNbt);
+    registry.setDefaultComparison(TinkerToolParts.smallBlade.get(), compareNbt);
+    registry.setDefaultComparison(TinkerToolParts.broadBlade.get(), compareNbt);
+    registry.setDefaultComparison(TinkerToolParts.roundPlate.get(), compareNbt);
+    registry.setDefaultComparison(TinkerToolParts.largePlate.get(), compareNbt);
+    registry.setDefaultComparison(TinkerToolParts.toolBinding.get(), compareNbt);
+    registry.setDefaultComparison(TinkerToolParts.toolHandle.get(), compareNbt);
+    registry.setDefaultComparison(TinkerToolParts.toughHandle.get(), compareNbt);
+
+    // tools
+    registry.setDefaultComparison(TinkerTools.pickaxe.get(), compareNbt);
+    registry.setDefaultComparison(TinkerTools.sledgeHammer.get(), compareNbt);
+    registry.setDefaultComparison(TinkerTools.veinHammer.get(), compareNbt);
+    registry.setDefaultComparison(TinkerTools.mattock.get(), compareNbt);
+    registry.setDefaultComparison(TinkerTools.pickadze.get(), compareNbt);
+    registry.setDefaultComparison(TinkerTools.excavator.get(), compareNbt);
+    registry.setDefaultComparison(TinkerTools.handAxe.get(), compareNbt);
+    registry.setDefaultComparison(TinkerTools.broadAxe.get(), compareNbt);
+    registry.setDefaultComparison(TinkerTools.kama.get(), compareNbt);
+    registry.setDefaultComparison(TinkerTools.scythe.get(), compareNbt);
+    registry.setDefaultComparison(TinkerTools.dagger.get(), compareNbt);
+    registry.setDefaultComparison(TinkerTools.sword.get(), compareNbt);
+    registry.setDefaultComparison(TinkerTools.cleaver.get(), compareNbt);
+    registry.setDefaultComparison(TinkerTools.flintAndBrick.get(), compareNbt);
   }
 
   private static <T extends Recipe<C>, C extends Container> void addCastingCatalyst(EmiRegistry registry, RecipeManager manager, EmiRecipeCategory ownCategory, EmiIngredient workstation, RecipeType<MoldingRecipe> type) {
