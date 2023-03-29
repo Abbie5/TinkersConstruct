@@ -1,11 +1,14 @@
 package slimeknights.tconstruct.plugin.emi.modifiers;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import dev.emi.emi.api.recipe.EmiRecipe;
 import dev.emi.emi.api.recipe.EmiRecipeCategory;
 import dev.emi.emi.api.stack.EmiIngredient;
 import dev.emi.emi.api.stack.EmiStack;
+import dev.emi.emi.api.widget.Bounds;
 import dev.emi.emi.api.widget.TextWidget;
+import dev.emi.emi.api.widget.Widget;
 import dev.emi.emi.api.widget.WidgetHolder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -129,12 +132,10 @@ public class ModifierEmiRecipe implements EmiRecipe {
 
     // slot cost
     SlotType.SlotCount slots = recipe.getSlots();
-    if (slots == null) {
-      drawSlotType(widgets, null, 110, 58);
-    } else {
-      drawSlotType(widgets, slots.getType(), 110, 58);
+    widgets.add(new SlotCountWidget(110, 58, slots));
+    if (slots != null) {
       Component text = new TextComponent(Integer.toString(slots.getCount()));
-      widgets.addText(text, 111, 63, Color.GRAY.getRGB(), false).horizontalAlign(TextWidget.Alignment.CENTER);
+      widgets.addText(text, 111, 63, Color.GRAY.getRGB(), false).horizontalAlign(TextWidget.Alignment.END);
     }
 
     // inputs
@@ -152,9 +153,6 @@ public class ModifierEmiRecipe implements EmiRecipe {
     // tool
     widgets.addSlot(tools.get(0),  24, 37).drawBack(false);
     widgets.addSlot(tools.get(1), 100, 29).drawBack(false).output(true);
-
-    widgets.addTexture(TConstruct.getResource("textures/item/slot/ability.png"), 0, 0, 16, 16, 0, 0);
-    //widgets.addSlot(EmiStack.of(Items.NETHER_STAR), 0, 0);
   }
 
   private void drawOutline(WidgetHolder widgets, int slot, int x, int y) {
@@ -163,30 +161,67 @@ public class ModifierEmiRecipe implements EmiRecipe {
     }
   }
 
-  private void drawSlotType(WidgetHolder widgets, @javax.annotation.Nullable SlotType slotType, int x, int y) {
-    Minecraft minecraft = Minecraft.getInstance();
-    TextureAtlasSprite sprite;
-    if (slotTypeSprites.containsKey(slotType)) {
-      sprite = slotTypeSprites.get(slotType);
-    } else {
-      ModelManager modelManager = minecraft.getModelManager();
-      // gets the model for the item, its a sepcial one that gives us texture info
-      BakedModel model = minecraft.getItemRenderer().getItemModelShaper().getItemModel(TinkerModifiers.creativeSlotItem.get());
-      if (model != null && model.getOverrides() instanceof NBTKeyModel.Overrides) {
-        Material material = ((NBTKeyModel.Overrides)model.getOverrides()).getTexture(slotType == null ? "slotless" : slotType.getName());
-        sprite = modelManager.getAtlas(material.atlasLocation()).getSprite(material.texture());
-      } else {
-        // failed to use the model, use missing texture
-        sprite = modelManager.getAtlas(InventoryMenu.BLOCK_ATLAS).getSprite(MissingTextureAtlasSprite.getLocation());
-      }
-      slotTypeSprites.put(slotType, sprite);
-    }
-    RenderSystem.setShader(GameRenderer::getPositionTexShader);
-    RenderSystem.setShaderTexture(0, InventoryMenu.BLOCK_ATLAS);
+  private class SlotCountWidget extends Widget {
+    private final int x, y;
+    private final Bounds bounds;
+    private final SlotType.SlotCount slots;
 
-    // i DO NOT understand why this doesnt work
-    widgets.addDrawable(x, y, 16, 16, (matrices, mouseX, mouseY, delta) ->
-      Screen.blit(matrices, 0, 0, 0, 16, 16, sprite));
+    public SlotCountWidget(int x, int y, @Nullable SlotType.SlotCount slots) {
+      this.x = x;
+      this.y = y;
+      this.bounds = new Bounds(x, y, 16, 16);
+      this.slots = slots;
+    }
+
+    @Override
+    public Bounds getBounds() {
+      return bounds;
+    }
+
+    @Override
+    public List<ClientTooltipComponent> getTooltip(int mouseX, int mouseY) {
+      Component tooltipComponent = null;
+      if (slots != null) {
+        int count = slots.getCount();
+        if (count == 1) {
+          tooltipComponent = new TranslatableComponent("jei.tconstruct.modifiers.slot", slots.getType().getDisplayName());
+        } else if (count > 1) {
+          tooltipComponent = new TranslatableComponent("jei.tconstruct.modifiers.slots", slots, slots.getType().getDisplayName());
+        }
+      } else {
+        tooltipComponent = new TranslatableComponent("jei.tconstruct.modifiers.free");
+      }
+      if (tooltipComponent != null) {
+        return List.of(ClientTooltipComponent.create(tooltipComponent.getVisualOrderText()));
+      }
+      return List.of();
+    }
+
+    @Override
+    public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
+      Minecraft minecraft = Minecraft.getInstance();
+      TextureAtlasSprite sprite;
+      SlotType slotType = slots == null ? null : slots.getType();
+      if (slotTypeSprites.containsKey(slotType)) {
+        sprite = slotTypeSprites.get(slotType);
+      } else {
+        ModelManager modelManager = minecraft.getModelManager();
+        // gets the model for the item, its a sepcial one that gives us texture info
+        BakedModel model = minecraft.getItemRenderer().getItemModelShaper().getItemModel(TinkerModifiers.creativeSlotItem.get());
+        if (model != null && model.getOverrides() instanceof NBTKeyModel.Overrides) {
+          Material material = ((NBTKeyModel.Overrides) model.getOverrides()).getTexture(slotType == null ? "slotless" : slotType.getName());
+          sprite = modelManager.getAtlas(material.atlasLocation()).getSprite(material.texture());
+        } else {
+          // failed to use the model, use missing texture
+          sprite = modelManager.getAtlas(InventoryMenu.BLOCK_ATLAS).getSprite(MissingTextureAtlasSprite.getLocation());
+        }
+        slotTypeSprites.put(slotType, sprite);
+      }
+      RenderSystem.setShader(GameRenderer::getPositionTexShader);
+      RenderSystem.setShaderTexture(0, InventoryMenu.BLOCK_ATLAS);
+
+      Screen.blit(matrices, x, y, 0, 16, 16, sprite);
+    }
   }
 
 }
