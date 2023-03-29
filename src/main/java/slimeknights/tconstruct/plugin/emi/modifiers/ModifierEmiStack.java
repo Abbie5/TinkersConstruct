@@ -2,9 +2,13 @@ package slimeknights.tconstruct.plugin.emi.modifiers;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.emi.emi.api.stack.EmiStack;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import slimeknights.tconstruct.library.modifiers.ModifierEntry;
 
@@ -14,10 +18,15 @@ import java.util.List;
 public class ModifierEmiStack extends EmiStack {
   private final ModifierBookmarkRenderer renderer;
   private final ModifierEntry entry;
+  private final Component name;
   public ModifierEmiStack(ModifierEntry entry) {
     this.entry = entry;
     this.renderer = new ModifierBookmarkRenderer(entry);
+    this.name = new TranslatableComponent("jei.tconstruct.modifier_ingredient",
+      new TranslatableComponent(entry.getModifier().getTranslationKey()))
+      .withStyle(style -> style.withColor(entry.getModifier().getTextColor()));
   }
+
   @Override
   public EmiStack copy() {
     return new ModifierEmiStack(entry);
@@ -51,8 +60,11 @@ public class ModifierEmiStack extends EmiStack {
   @Override
   public List<Component> getTooltipText() {
     List<Component> tooltip = new ArrayList<>();
-    tooltip.add(entry.getModifier().getDisplayName());
+    tooltip.add(name);
     tooltip.addAll(entry.getModifier().getDescriptionList());
+    if (Minecraft.getInstance().options.advancedItemTooltips) {
+      tooltip.add(new TextComponent(entry.getId().toString()).withStyle(ChatFormatting.DARK_GRAY));
+    }
     return tooltip;
   }
 
@@ -66,6 +78,6 @@ public class ModifierEmiStack extends EmiStack {
 
   @Override
   public Component getName() {
-    return entry.getModifier().getDisplayName(entry.getLevel());
+    return name;
   }
 }
