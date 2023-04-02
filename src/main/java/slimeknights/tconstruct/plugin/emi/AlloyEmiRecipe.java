@@ -23,6 +23,7 @@ public class AlloyEmiRecipe implements EmiRecipe {
 
   private static final ResourceLocation BACKGROUND_LOC = TConstruct.getResource("textures/gui/jei/alloy.png");
 
+  private static final EmiTexture arrow = new EmiTexture(BACKGROUND_LOC, 172, 0, 24, 17);
   private final AlloyRecipe recipe;
 
   public AlloyEmiRecipe(AlloyRecipe recipe) {
@@ -98,7 +99,7 @@ public class AlloyEmiRecipe implements EmiRecipe {
   public void addWidgets(WidgetHolder widgets) {
     widgets.addTexture(new EmiTexture(BACKGROUND_LOC, 0, 0, 172, 62), 0, 0);
 
-    widgets.addFillingArrow(90, 21, 10000);
+    widgets.addAnimatedTexture(arrow, 90, 21, 10000, true, false, false);
     // temperature info
     Component temp = new TranslatableComponent("jei.tconstruct.temperature", recipe.getTemperature());
     widgets.addText(temp, 102, 5, Color.GRAY.getRGB(), false).horizontalAlign(TextWidget.Alignment.CENTER);

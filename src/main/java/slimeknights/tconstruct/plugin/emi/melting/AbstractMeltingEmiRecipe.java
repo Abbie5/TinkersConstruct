@@ -20,6 +20,7 @@ import java.util.List;
 public abstract class AbstractMeltingEmiRecipe implements EmiRecipe {
   protected static final ResourceLocation BACKGROUND_LOC = TConstruct.getResource("textures/gui/jei/melting.png");
   protected static final EmiTexture plus = new EmiTexture(BACKGROUND_LOC, 132, 34, 6, 6);
+  protected static final EmiTexture arrow = new EmiTexture(BACKGROUND_LOC, 150, 41, 24, 17);
   protected final MeltingRecipe recipe;
 
   public AbstractMeltingEmiRecipe(MeltingRecipe recipe) {
@@ -61,7 +62,7 @@ public abstract class AbstractMeltingEmiRecipe implements EmiRecipe {
     widgets.addTexture(BACKGROUND_LOC, 0, 0, 132, 40, 0, 0);
 
     // draw the arrow
-    widgets.addFillingArrow(56, 18, recipe.getTime() * 250);
+    widgets.addAnimatedTexture(arrow, 56, 18, recipe.getTime() * 250, true, false, false);
     if (recipe.getOreType() != null) {
       widgets.addTexture(plus, 87, 31)
         .tooltip((mouseX, mouseY) -> List.of(ClientTooltipComponent.create(new TranslatableComponent("jei.tconstruct.melting.ore").getVisualOrderText())));

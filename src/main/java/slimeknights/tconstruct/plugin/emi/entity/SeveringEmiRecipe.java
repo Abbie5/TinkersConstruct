@@ -57,13 +57,11 @@ public class SeveringEmiRecipe implements EmiRecipe {
 
   @Override
   public void addWidgets(WidgetHolder widgets) {
-    //widgets.addTexture(BACKGROUND_LOC, 0, 0, 100, 38, 0, 78);
+    widgets.addTexture(BACKGROUND_LOC, 0, 0, 100, 38, 0, 78);
     widgets.addSlot(input, 3, 3).drawBack(false).customBackground(null, 0, 0, 32, 32);
 
-    widgets.addTexture(EmiTexture.EMPTY_ARROW, 41, 10);
-
     // output
-    widgets.addSlot(output, 71, 6).output(true).recipeContext(this);
+    widgets.addSlot(output, 71, 6).drawBack(false).output(true).recipeContext(this);
   }
 
   @Override

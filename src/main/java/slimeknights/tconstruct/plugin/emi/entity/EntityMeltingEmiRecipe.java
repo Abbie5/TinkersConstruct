@@ -23,6 +23,7 @@ import java.util.List;
 
 public class EntityMeltingEmiRecipe implements EmiRecipe {
   public static final ResourceLocation BACKGROUND_LOC = TConstruct.getResource("textures/gui/jei/melting.png");
+  private static final EmiTexture arrow = new EmiTexture(BACKGROUND_LOC, 150, 41, 24, 17);
   public static final EmiTexture icon = new EmiTexture(BACKGROUND_LOC, 174, 41, 16, 16);
 
   private final EntityMeltingRecipe recipe;
@@ -65,7 +66,7 @@ public class EntityMeltingEmiRecipe implements EmiRecipe {
   public void addWidgets(WidgetHolder widgets) {
     widgets.addTexture(BACKGROUND_LOC, 0, 0, 150, 62, 0, 41);
 
-    widgets.addFillingArrow(71, 21, 10000);
+    widgets.addAnimatedTexture(arrow, 71, 21, 10000, true, false, false);
 
     // draw damage string next to the heart icon
     String damage = Float.toString(recipe.getDamage() / 2f);
